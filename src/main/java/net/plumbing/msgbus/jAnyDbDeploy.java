@@ -15,7 +15,7 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 
 public class jAnyDbDeploy {
-	private static final String HrmsSchema="orm";
+//	private static  String HrmsSchema;
 	static public Connection Oracle_Connection = null;
 	static public String connectionUrl ;
 	static private String ora_point;
@@ -28,7 +28,7 @@ public class jAnyDbDeploy {
 	public static String Msg_Type=null;
 	public static String TemplatePart=null;
 
-	static private void make_Oracle_Connection() {
+	static private void make_Oracle_Connection( String db_userid, String db_password ) {
 
 		/*if ( ora_point==null) {
 			//connectionUrl = "jdbc:oracle:thin:@//10.10.1.1:7016/hermes"; // Бой !!!
@@ -53,9 +53,9 @@ public class jAnyDbDeploy {
 			ClassforName = "oracle.jdbc.driver.OracleDriver";
 		else ClassforName = "org.postgresql.Driver";
 
-		String db_userid = HrmsSchema; //"artx_proj";
-		String db_password = "ormid"; // ""rIYmcN38St5P";
-		System.out.println( "Try DataBase getConnection: "  + connectionUrl + " as " + db_userid + " , Class.forName:" + ClassforName);
+		// String db_userid = HrmsSchema; //"artx_proj";
+		//String db_password = "ormid"; // ""rIYmcN38St5P";
+		System.out.println( "Try DataBase getConnection: "  + connectionUrl + " as " + db_userid + " password[" + db_password + "] , Class.forName:" + ClassforName);
 		try {
 			// Establish the connection.
 			Class.forName(ClassforName);
@@ -82,9 +82,13 @@ public class jAnyDbDeploy {
 		output.setRequired(true);
 		options.addOption(output);
 
-		Option schema = new Option("s", "schema", true, "database schema name");
+		Option schema = new Option("s", "schema", true, "database schema(user owner) name");
 		output.setRequired(true);
-		options.addOption(output);
+		options.addOption(schema);
+
+		Option password = new Option("p", "password", true, "database user password");
+		output.setRequired(true);
+		options.addOption(password);
 
 		CommandLineParser parser = new DefaultParser();
 		HelpFormatter formatter = new HelpFormatter();
@@ -92,12 +96,14 @@ public class jAnyDbDeploy {
 		String inputFilePath=null;
 		String outputFilePath=null;
 		String hrmsSchema="orm";
+		String hrmsPassword="ormid";
 
 		try {
 			cmd = parser.parse(options, args);
 			inputFilePath = cmd.getOptionValue("input");
 			outputFilePath = cmd.getOptionValue("output");
 			hrmsSchema = cmd.getOptionValue("schema");
+			hrmsPassword = cmd.getOptionValue("password");
 
 		} catch (ParseException e) {
 			System.out.println(e.getMessage());
@@ -109,7 +115,8 @@ public class jAnyDbDeploy {
 
 		System.out.println("inputFilePath:" + inputFilePath);
 		System.out.println("outputFilePath:" + outputFilePath);
-		System.out.println("database schema name:" + HrmsSchema);
+		System.out.println("database schema name:" + hrmsSchema);
+		// HrmsSchema = hrmsSchema;
 		String File_separator =  File.separator;
 
 		File f = new File(inputFilePath);
@@ -126,7 +133,7 @@ public class jAnyDbDeploy {
 		try {
 			// String SQL = "SELECT TOP 5 * FROM Persons_fired_VV";
 ;
- 		    make_Oracle_Connection();
+ 		    make_Oracle_Connection( hrmsSchema, hrmsPassword );
 			System.out.println( "Try InitTemplates_InitTypes.SelectMsgTemplates( "
 					+ messageDirection + ", "
 					+ Integer.parseInt(sInterface_Id) + ", "
@@ -157,7 +164,7 @@ public class jAnyDbDeploy {
 			System.exit(numTemplatefound);
 		if ( numTemplatefound > 1  ) {
 			System.err.println("В выборке по ["
-							+ " and " + HrmsSchema + ".x_templates.look_2_MessageDirections(t.destin_id, t.dst_subcod) = '" + messageDirection + "'"
+							+ " and " + hrmsSchema + ".x_templates.look_2_MessageDirections(t.destin_id, t.dst_subcod) = '" + messageDirection + "'"
 							+ " and t.Interface_Id = " + sInterface_Id
 							+ " and t.Operation_Id = " + sOperation_Id
 					        + " ]больше 1-го шаблона");
@@ -190,7 +197,7 @@ public class jAnyDbDeploy {
 				InitTemplates_InitTypes.doUpdate_MESSAGE_Template( hrmsSchema, Template_Id_INSERT_MessageTemplate, Conf_Text
 				);
 if ( result_UPDATE_MessageTemplate == 0 )
-	System.err.println("update "+ HrmsSchema + ".Message_Template for Template_Id =" + Template_Id_INSERT_MessageTemplate + " has been successfully done.");
+	System.err.println("update "+ hrmsSchema + ".Message_Template for Template_Id =" + Template_Id_INSERT_MessageTemplate + " has been successfully done.");
 		System.exit(result_UPDATE_MessageTemplate);
 	}
 

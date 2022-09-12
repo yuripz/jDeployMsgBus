@@ -196,37 +196,38 @@ public class InitTemplates_InitTypes {
     public static int SelectMsgTypes(String HrmsSchema, Integer Interface_Id, Integer Operation_Id) {
         PreparedStatement stmtMsgType = null;
         ResultSet rs = null;
-
+        String MsgTypeSelect= "select t.interface_id,\n" +
+                "t.operation_id,\n" +
+                "t.msg_type,\n" +
+                "t.msg_type_own,\n" +
+                "t.msg_typedesc,\n" +
+                "t.msg_direction,\n" +
+                "t.msg_handler,\n" +
+                "t.url_soap_send,\n" +
+                "t.url_soap_ack,\n" +
+                "t.max_retry_count,\n" +
+                "t.max_retry_time, last_update_dt \n" +
+                "from " + HrmsSchema + ".MESSAGE_typeS t\n" +
+                "where (1=1) "
+                + " and t.Interface_Id = " + Interface_Id.toString()
+                + " and t.Operation_Id = " + Operation_Id.toString();
         MessageType.AllMessageType.clear();
         MessageType.RowNum = 0;
 
         if (jAnyDbDeploy.Oracle_Connection != null)
             try {
-                stmtMsgType = jAnyDbDeploy.Oracle_Connection.prepareStatement("select t.interface_id,\n" +
-                        "t.operation_id,\n" +
-                        "t.msg_type,\n" +
-                        "t.msg_type_own,\n" +
-                        "t.msg_typedesc,\n" +
-                        "t.msg_direction,\n" +
-                        "t.msg_handler,\n" +
-                        "t.url_soap_send,\n" +
-                        "t.url_soap_ack,\n" +
-                        "t.max_retry_count,\n" +
-                        "t.max_retry_time, last_update_dt \n" +
-                        "from " + HrmsSchema + ".MESSAGE_typeS t\n" +
-                        "where (1=1) "
-                        + " and t.Interface_Id = " + Interface_Id.toString()
-                        + " and t.Operation_Id = " + Operation_Id.toString()
+                stmtMsgType = jAnyDbDeploy.Oracle_Connection.prepareStatement( MsgTypeSelect
                 );
 
             } catch (Exception e) {
+                System.err.println( "SelectMsgTypes: " + MsgTypeSelect + " fault ");
                 e.printStackTrace();
                 return -2;
             }
         else {
             return -3;
         }
-
+        System.out.println( "SelectMsgTypes: try [" + MsgTypeSelect + " ] ");
         try {
             rs = stmtMsgType.executeQuery();
             while (rs.next()) {
