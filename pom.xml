@@ -123,7 +123,7 @@
                 <configuration>
                     <archive>
                         <manifest>
-                            <mainClass>ru.hermes.msgbus.jAnyDbDeploy</mainClass>
+                            <mainClass>net.plumbing.msgbus.jAnyDbDeploy</mainClass>
                         </manifest>
                     </archive>
                 </configuration>

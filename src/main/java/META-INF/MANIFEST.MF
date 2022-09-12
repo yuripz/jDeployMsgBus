@@ -1,0 +1,4 @@
+Manifest-Version: 1.0
+Main-Class: net.plumbing.msgbus.jAnyDbDeploy
+Class-Path: commons-cli-1.5.jar jdom-1.0.jar jdom2-2.0.6.1.jar ojdbc11.jar
+
