@@ -83,11 +83,11 @@ public class jAnyDbDeploy {
 		options.addOption(output);
 
 		Option schema = new Option("s", "schema", true, "database schema(user owner) name");
-		output.setRequired(true);
+		schema.setRequired(true);
 		options.addOption(schema);
 
 		Option password = new Option("p", "password", true, "database user password");
-		output.setRequired(true);
+		schema.setRequired(true);
 		options.addOption(password);
 
 		CommandLineParser parser = new DefaultParser();
