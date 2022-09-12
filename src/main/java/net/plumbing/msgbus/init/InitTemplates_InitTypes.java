@@ -4,7 +4,6 @@ package net.plumbing.msgbus.init;
 import net.plumbing.msgbus.common.sStackTracе;
 import net.plumbing.msgbus.jAnyDbDeploy;
 import net.plumbing.msgbus.model.*;
-import ru.hermes.msgbus.model.*;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -12,8 +11,9 @@ import java.sql.SQLException;
 
 public class InitTemplates_InitTypes {
 
-    private static final String HrmsSchema="orm";
+  //  private static final String HrmsSchema="orm";
     public static  int SelectMsgDirections(
+            String HrmsSchema,
             String MsgDirection_Cod )  {
         PreparedStatement stmtMsgDirection = null;
         ResultSet rs = null;
@@ -103,7 +103,7 @@ public class InitTemplates_InitTypes {
     }
 
 
-    public static int SelectMsgTemplates(String MessageDirections, Integer Interface_Id, Integer Operation_Id, String TypeMsg_Direction) {
+    public static int SelectMsgTemplates(String HrmsSchema, String MessageDirections, Integer Interface_Id, Integer Operation_Id, String TypeMsg_Direction) {
         int parseResult;
         PreparedStatement stmtMsgTemplate;
         ResultSet rs;
@@ -193,7 +193,7 @@ public class InitTemplates_InitTypes {
         return MessageTemplate.RowNum;
     }
 
-    public static int SelectMsgTypes(Integer Interface_Id, Integer Operation_Id) {
+    public static int SelectMsgTypes(String HrmsSchema, Integer Interface_Id, Integer Operation_Id) {
         PreparedStatement stmtMsgType = null;
         ResultSet rs = null;
 
@@ -261,27 +261,29 @@ public class InitTemplates_InitTypes {
         return MessageType.RowNum;
     }
 
-    private static final String INSERT_MESSAGE_Template = "insert into " + HrmsSchema + ".Message_Templates( " +
-            "Interface_Id,\n" +
-            "Operation_Id,\n" +
-            "Msg_Type,\n" +
-            "Msg_Type_Own,\n" +
-            "Template_Name,\n" +
-            "Template_Dir,\n" +
-            "Source_Id,\n" +
-            "Destin_Id,\n" +
-            "Src_Subcod,\n" +
-            "Dst_Subcod,\n" +
-            "Lastmaker,\n" +
-            "Lastdate, Template_Id ) \n select  ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,  current_timestamp, ? from dual";
     private static PreparedStatement stmt_INSERT_MESSAGE_TemplateS=null;
     private static PreparedStatement stmt_maxTemplate_Id=null;
-
-    private static final String update_MESSAGE_Template = "update " + HrmsSchema +  ".Message_Templates set conf_text=?, Lastmaker=?, Lastdate=current_timestamp where Template_Id =?";
     private static PreparedStatement stmt_update_MESSAGE_Template=null;
+    private static String INSERT_MESSAGE_Template;
 
-    private static PreparedStatement make_INSERT_MessageTemplate() {
+    private static PreparedStatement make_INSERT_MessageTemplate( String HrmsSchema) {
         PreparedStatement StmtMsg_Queue;
+        INSERT_MESSAGE_Template = "insert into " + HrmsSchema + ".Message_Templates( " +
+                "Interface_Id,\n" +
+                "Operation_Id,\n" +
+                "Msg_Type,\n" +
+                "Msg_Type_Own,\n" +
+                "Template_Name,\n" +
+                "Template_Dir,\n" +
+                "Source_Id,\n" +
+                "Destin_Id,\n" +
+                "Src_Subcod,\n" +
+                "Dst_Subcod,\n" +
+                "Lastmaker,\n" +
+                "Lastdate, Template_Id ) \n select  ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,  current_timestamp, ? from dual";
+
+
+
         try {
             StmtMsg_Queue = jAnyDbDeploy.Oracle_Connection.prepareStatement(INSERT_MESSAGE_Template);
         } catch (SQLException e) {
@@ -299,8 +301,10 @@ public class InitTemplates_InitTypes {
         }
         return StmtMsg_Queue;
     }
-    private static PreparedStatement make_update_MESSAGE_Template() {
+    private static String update_MESSAGE_Template;
+    private static PreparedStatement make_update_MESSAGE_Template( String HrmsSchema ) {
         PreparedStatement StmtMsg_Queue;
+         update_MESSAGE_Template = "update " + HrmsSchema +  ".Message_Templates set conf_text=?, Lastmaker=?, Lastdate=current_timestamp where Template_Id =?";
         try {
 
             StmtMsg_Queue = jAnyDbDeploy.Oracle_Connection.prepareStatement(update_MESSAGE_Template);
@@ -313,8 +317,8 @@ public class InitTemplates_InitTypes {
         return StmtMsg_Queue;
     }
 
-    public static int doUpdate_MESSAGE_Template( Integer maxTemplate_Id, String Conf_Text ) {
-        make_update_MESSAGE_Template();
+    public static int doUpdate_MESSAGE_Template( String HrmsSchema, Integer maxTemplate_Id, String Conf_Text ) {
+        make_update_MESSAGE_Template( HrmsSchema );
         if (stmt_update_MESSAGE_Template != null) {
             try {
                 stmt_update_MESSAGE_Template.setString(1, Conf_Text );
@@ -338,8 +342,8 @@ public class InitTemplates_InitTypes {
         }
         return 0;
     }
-    public static int doINSERT_MessageTemplate( MessageTemplateVO messageTemplateVO) {
-        make_INSERT_MessageTemplate();
+    public static int doINSERT_MessageTemplate( String HrmsSchema, MessageTemplateVO messageTemplateVO) {
+        make_INSERT_MessageTemplate( HrmsSchema );
         Integer maxTemplate_Id=null;
         if ( stmt_INSERT_MESSAGE_TemplateS !=null) {
         try {

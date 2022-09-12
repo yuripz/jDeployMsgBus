@@ -82,16 +82,22 @@ public class jAnyDbDeploy {
 		output.setRequired(true);
 		options.addOption(output);
 
+		Option schema = new Option("s", "schema", true, "database schema name");
+		output.setRequired(true);
+		options.addOption(output);
+
 		CommandLineParser parser = new DefaultParser();
 		HelpFormatter formatter = new HelpFormatter();
 		CommandLine cmd;
 		String inputFilePath=null;
 		String outputFilePath=null;
+		String hrmsSchema="orm";
 
 		try {
 			cmd = parser.parse(options, args);
 			inputFilePath = cmd.getOptionValue("input");
 			outputFilePath = cmd.getOptionValue("output");
+			hrmsSchema = cmd.getOptionValue("schema");
 
 		} catch (ParseException e) {
 			System.out.println(e.getMessage());
@@ -103,6 +109,7 @@ public class jAnyDbDeploy {
 
 		System.out.println("inputFilePath:" + inputFilePath);
 		System.out.println("outputFilePath:" + outputFilePath);
+		System.out.println("database schema name:" + HrmsSchema);
 		String File_separator =  File.separator;
 
 		File f = new File(inputFilePath);
@@ -132,7 +139,7 @@ public class jAnyDbDeploy {
 		}
 
 		int numMessageTypeFound = // Зачитывем ТИП
-				Perform.getMessageTypeVO(sInterface_Id, sOperation_Id);
+				Perform.getMessageTypeVO( hrmsSchema, sInterface_Id, sOperation_Id);
 		// Проверяем наличие Типа сообщения
 		if ( numMessageTypeFound != 1)
 		{
@@ -144,7 +151,7 @@ public class jAnyDbDeploy {
 		}
 
 		int numTemplatefound = // Зачитывем, с учетом IN|OUT ARTX_PROJ.MESSAGE_typeS.msg_direction из Perform.getMessageTypeVO() !
-		    Perform.getMessageTemplateVO(messageDirection, sInterface_Id, sOperation_Id, MessageType.AllMessageType.get(0).getMsg_Direction() );
+		    Perform.getMessageTemplateVO(hrmsSchema, messageDirection, sInterface_Id, sOperation_Id, MessageType.AllMessageType.get(0).getMsg_Direction() );
 		int Template_Id_INSERT_MessageTemplate=0;
 		if ( numTemplatefound < 0 )
 			System.exit(numTemplatefound);
@@ -163,7 +170,7 @@ public class jAnyDbDeploy {
 		if ( numTemplatefound == 0 )
 		{ // Если шаблон не найден, то его создаем по типу
 
-			Perform.newMessageTemplateVO(
+			Perform.newMessageTemplateVO( hrmsSchema,
 					MessageType.AllMessageType.get(0), messageDirection
 			);
 
@@ -171,16 +178,16 @@ public class jAnyDbDeploy {
 			//System.exit(96);
 			// Добавляем шаблон в БД
 			Template_Id_INSERT_MessageTemplate =
-			InitTemplates_InitTypes.doINSERT_MessageTemplate( MessageTemplate.AllMessageTemplate.get(0) );
+			InitTemplates_InitTypes.doINSERT_MessageTemplate( hrmsSchema,MessageTemplate.AllMessageTemplate.get(0) );
 			if ( Template_Id_INSERT_MessageTemplate < 0)
 				System.exit(-60);
 		}
         System.out.println( "Conf_Text() before:\n" + MessageTemplate.AllMessageTemplate.get(0).getConf_Text() );
 		String Conf_Text =
-		Perform.replace_Conf_Text( MessageTemplate.AllMessageTemplate.get(0), TemplatePart, messageTemplateConf_Text);
+		Perform.replace_Conf_Text( hrmsSchema, MessageTemplate.AllMessageTemplate.get(0), TemplatePart, messageTemplateConf_Text);
         System.out.println( "Conf_Text() for update [Template_Id=" + Template_Id_INSERT_MessageTemplate + "]:\n" + Conf_Text );
 		int result_UPDATE_MessageTemplate =
-				InitTemplates_InitTypes.doUpdate_MESSAGE_Template( Template_Id_INSERT_MessageTemplate, Conf_Text
+				InitTemplates_InitTypes.doUpdate_MESSAGE_Template( hrmsSchema, Template_Id_INSERT_MessageTemplate, Conf_Text
 				);
 if ( result_UPDATE_MessageTemplate == 0 )
 	System.err.println("update "+ HrmsSchema + ".Message_Template for Template_Id =" + Template_Id_INSERT_MessageTemplate + " has been successfully done.");

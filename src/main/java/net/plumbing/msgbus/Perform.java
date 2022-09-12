@@ -31,7 +31,7 @@ return 0;
 public static  String Conf_Text_Begin= "<?xml version='1.0' encoding='utf-8'?><TemplConfig>";
     public static  String Conf_Text_End="</TemplConfig>";
 
-    static public String replace_Conf_Text(MessageTemplateVO messageTemplateVO, String configEntry, String configContent) throws Exception {
+    static public String replace_Conf_Text(String HrmsSchema,  MessageTemplateVO messageTemplateVO, String configEntry, String configContent) throws Exception {
         StringBuffer TemplConfig = new StringBuffer(Conf_Text_Begin);
 
         System.out.println( "configEntry:" + configEntry // + "\n configContent:" + configContent
@@ -181,11 +181,11 @@ public static  String Conf_Text_Begin= "<?xml version='1.0' encoding='utf-8'?><T
         return TemplConfig.toString();
     }
 
-    static public int getMessageTemplateVO( String MessageDirection, String sInterface_Id, String sOperation_Id, String MsgType_Direction  ) {
+    static public int getMessageTemplateVO( String HrmsSchema, String MessageDirection, String sInterface_Id, String sOperation_Id, String MsgType_Direction  ) {
         // MessageTemplateVO messageTemplateVO = new MessageTemplateVO();
         // Зачитывем
         int numTemplatefound =
-        InitTemplates_InitTypes.SelectMsgTemplates( MessageDirection,
+        InitTemplates_InitTypes.SelectMsgTemplates( HrmsSchema, MessageDirection,
                 Integer.parseInt(sInterface_Id),
                 Integer.parseInt(sOperation_Id),
                 MsgType_Direction );
@@ -193,17 +193,17 @@ public static  String Conf_Text_Begin= "<?xml version='1.0' encoding='utf-8'?><T
     }
 
 
-    static public int getMessageTypeVO( String sInterface_Id, String sOperation_Id  ) {
+    static public int getMessageTypeVO( String HrmsSchema, String sInterface_Id, String sOperation_Id  ) {
         // MessageTemplateVO messageTemplateVO = new MessageTemplateVO();
         // Зачитывем
         int numMessageTypeFound =
-                InitTemplates_InitTypes.SelectMsgTypes(
+                InitTemplates_InitTypes.SelectMsgTypes(  HrmsSchema,
                         Integer.parseInt(sInterface_Id),
                         Integer.parseInt(sOperation_Id) );
         return  numMessageTypeFound;
     }
 
-    static public int newMessageTemplateVO(MessageTypeVO messageTypeVO, String MessageDirection ) {
+    static public int newMessageTemplateVO(String HrmsSchema, MessageTypeVO messageTypeVO, String MessageDirection ) {
         // MessageTemplateVO messageTemplateVO = new MessageTemplateVO();
         // Зачитываем
         int numTemplatefound = 0;
@@ -219,7 +219,7 @@ public static  String Conf_Text_Begin= "<?xml version='1.0' encoding='utf-8'?><T
         String Dst_SubCod = null;
 
 
-        int systemFound = InitTemplates_InitTypes.SelectMsgDirections( MessageDirection );
+        int systemFound = InitTemplates_InitTypes.SelectMsgDirections( HrmsSchema, MessageDirection );
         if ( systemFound >0) {
             if ( messageTypeVO.getMsg_Direction().equalsIgnoreCase("IN") )
             { // // для входящих получатель  всегда Гермес destin_id = 5
