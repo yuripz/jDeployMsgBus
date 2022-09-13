@@ -13,6 +13,7 @@ import java.io.*;
 import java.nio.file.attribute.FileTime;
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.SQLException;
 
 public class jAnyDbDeploy {
 //	private static  String HrmsSchema;
@@ -28,20 +29,10 @@ public class jAnyDbDeploy {
 	public static String Msg_Type=null;
 	public static String TemplatePart=null;
 
-	static private void make_Oracle_Connection( String db_userid, String db_password ) {
-
-		/*if ( ora_point==null) {
-			//connectionUrl = "jdbc:oracle:thin:@//10.10.1.1:7016/hermes"; // Бой !!!
-			// connectionUrl = "jdbc:oracle:thin:@//10.32.245.10:1521/hermes12"; // Test !!!
-			connectionUrl = "jdbc:oracle:thin:@//localhost:15021/ORCLPDB1";
-		}
-		else {
-			connectionUrl = "jdbc:oracle:thin:@//"+ora_point;
-		}*/
+	static private void make_Oracle_Connection( String db_userid, String db_password ) throws SQLException {
 
 		if ( ora_point==null) {
-			connectionUrl = "jdbc:oracle:thin:@//10.242.36.8:1521/hermes12"; // Test-Capsul !!!
-			//connectionUrl = "jdbc:oracle:thin:@//10.32.245.4:1521/hermes"; // Бой !!!
+			throw new SQLException("connectionUrl is NULL, check paramrters -Dora.point");
 		}
 		else {
 			//connectionUrl = "jdbc:oracle:thin:@"+dst_point;
@@ -62,7 +53,7 @@ public class jAnyDbDeploy {
 			Oracle_Connection = DriverManager.getConnection(connectionUrl, db_userid, db_password);
 			// Handle any errors that may have occurred.
 			Oracle_Connection.setAutoCommit(false);
-		} catch (Exception e) {
+		} catch (SQLException | ClassNotFoundException e) {
 			e.printStackTrace();
 		}
 	}

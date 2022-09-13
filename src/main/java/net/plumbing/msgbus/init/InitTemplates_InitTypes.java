@@ -113,9 +113,15 @@ public class InitTemplates_InitTypes {
         MessageTemplate.RowNum = 0;
         String where_x_templates_look_2_MessageDirections ;
         if ( TypeMsg_Direction.equalsIgnoreCase("OUT") )
-            where_x_templates_look_2_MessageDirections = " " + HrmsSchema + ".look_2_MessageDirections(t.destin_id, t.dst_subcod) ";
+            if ( jAnyDbDeploy.connectionUrl.indexOf("oracle") > 0 )
+                where_x_templates_look_2_MessageDirections = " " + HrmsSchema + ".x_Templates.look_2_MessageDirections(t.destin_id, t.dst_subcod) ";
+             else
+            where_x_templates_look_2_MessageDirections = " " + HrmsSchema + ".x_templates$_look_2_MessageDirections(t.destin_id, t.dst_subcod) ";
         else
-            where_x_templates_look_2_MessageDirections = " " + HrmsSchema + " .look_2_MessageDirections(t.source_id, t.src_subcod) ";
+            if ( jAnyDbDeploy.connectionUrl.indexOf("oracle") > 0 )
+               where_x_templates_look_2_MessageDirections = " " + HrmsSchema + ".x_Templates.look_2_MessageDirections(t.source_id, t.dst_subcod) ";
+            else
+               where_x_templates_look_2_MessageDirections = " " + HrmsSchema + " .x_templates$_look_2_MessageDirections(t.source_id, t.src_subcod) ";
         String Select_Templates = "select t.template_id, " +
                 "t.interface_id, " +
                 "t.operation_id, " +
@@ -132,7 +138,7 @@ public class InitTemplates_InitTypes {
                 "to_char(t.lastdate,'YYYY.MM.DD HH24:MI:SS') LastDate " +
                 "from " + HrmsSchema + ".MESSAGE_TemplateS t " +
                 "where (1=1) "
-              //  + " and " + where_x_templates_look_2_MessageDirections + " = '" + MessageDirections + "'"
+                + " and " + where_x_templates_look_2_MessageDirections + " = '" + MessageDirections + "'"
                 + " and t.Interface_Id = " + Interface_Id.toString()
                 + " and t.Operation_Id = " + Operation_Id.toString();
         System.out.println(Select_Templates);
@@ -144,6 +150,7 @@ public class InitTemplates_InitTypes {
                 );
 
             } catch (Exception e) {
+                System.err.println( Select_Templates + " fault");
                 e.printStackTrace();
                 return -2;
             }
